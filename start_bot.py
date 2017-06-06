@@ -17,16 +17,18 @@ def parse_data(slack_rtm_data):
         for messages_obj in slack_rtm_data:
             if messages_obj and "text" in messages_obj:
                 msg_content = split_bot_tag(messages_obj["text"])
-                return msg_content
+                from_user = messages_obj["user"]
+                return from_user, msg_content
+    return None, None
 
 
 def main():
     if slack_client.rtm_connect():
         print("report_tracker connected and running")
         while True:
-            message = parse_data(slack_client.rtm_read())
-            if message:
-                print(message)
+            from_user, message = parse_data(slack_client.rtm_read())
+            if from_user and message:
+                print(from_user, message)
             time.sleep(1)
     else:
         print("Connection failed. Invalid Slack token")
