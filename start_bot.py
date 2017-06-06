@@ -38,7 +38,7 @@ def main():
                 save_data(from_user, message)
             time.sleep(1)
     else:
-        print("Connection failed. Invalid Slack token")
+        print("Connection failed. Invalid Slack token or Slack is down!")
 
 
 if __name__ == "__main__":
