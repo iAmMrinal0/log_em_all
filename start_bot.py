@@ -6,10 +6,10 @@ import time
 slack_client = SlackClient(os.environ.get("SLACK_BOT_TOKEN"))
 
 
-def save_data(user, content):
+def save_data(user, content, date):
     filename = user + ".md"
     with open(filename, "a") as w:
-        w.write(content + "\n")
+        w.write(date + "\n" + content + "\n\n")
 
 
 def split_bot_tag(message):
@@ -24,18 +24,20 @@ def parse_data(slack_rtm_data):
             if messages_obj and "text" in messages_obj:
                 msg_content = split_bot_tag(messages_obj["text"])
                 from_user = messages_obj["user"]
-                return from_user, msg_content
-    return None, None
+                date = time.strftime("%d-%m-%Y",
+                                     time.localtime(float(messages_obj["ts"])))
+                return from_user, msg_content, date
+    return None, None, None
 
 
 def main():
     if slack_client.rtm_connect():
         print("report_tracker connected and running")
         while True:
-            from_user, message = parse_data(slack_client.rtm_read())
-            if from_user and message:
-                print(from_user, message)
-                save_data(from_user, message)
+            from_user, message, date = parse_data(slack_client.rtm_read())
+            if from_user and message and date:
+                print(from_user, message, date)
+                save_data(from_user, message, date)
             time.sleep(1)
     else:
         print("Connection failed. Invalid Slack token or Slack is down!")
