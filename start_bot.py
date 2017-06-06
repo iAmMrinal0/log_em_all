@@ -6,6 +6,12 @@ import time
 slack_client = SlackClient(os.environ.get("SLACK_BOT_TOKEN"))
 
 
+def save_data(user, content):
+    filename = user + ".md"
+    with open(filename, "a") as w:
+        w.write(content + "\n")
+
+
 def split_bot_tag(message):
     bot_tag = "<@" + os.environ.get("BOT_ID") + ">"
     if bot_tag in message:
@@ -29,6 +35,7 @@ def main():
             from_user, message = parse_data(slack_client.rtm_read())
             if from_user and message:
                 print(from_user, message)
+                save_data(from_user, message)
             time.sleep(1)
     else:
         print("Connection failed. Invalid Slack token")
