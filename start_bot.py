@@ -30,7 +30,12 @@ current date."
         message_data = {"text": response,
                         "channel": channel,
                         "as_user": True}
-    slack_client.api_call(mode, **message_data)
+    return slack_client.api_call(mode, **message_data)
+
+
+def handle_response(response):
+    if not response.get("ok"):
+        return response["error"]
 
 
 def split_bot_tag(message):
@@ -72,7 +77,10 @@ def main():
                 else:
                     command = False
                     save_data(from_user, message, date)
-                post_response(channel, command)
+                response = post_response(channel, command)
+                error = handle_response(response)
+                if error:
+                    print(error)
             time.sleep(1)
     else:
         print("Connection failed. Invalid Slack token or Slack is down!")
