@@ -1,6 +1,6 @@
 # track_my_report
 
-A Slack bot which saves messages when you tag it
+A Slack bot which saves whatever you send it in a direct message(DM).
 
 ## Requirements
 
@@ -24,7 +24,7 @@ export BOT_ID='xxxxxxxx'
 ```
 
 3. Now run `python start_bot.py` to start the bot.
-4. The bot will now listen to all messages in the team in all the channels it is a part of, and whenever it is tagged, it will save whatever message the user provided.
+4. The bot will now listen to all messages in the team in all the channels it is a part of. When a user sends a direct message to the bot, it saves the message to a markdown file specific to the user.
 
 ### License
  See the [LICENSE](LICENSE) file for license rights and limitations (MIT)
