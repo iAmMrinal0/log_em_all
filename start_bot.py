@@ -14,19 +14,29 @@ def save_data(user, content, date):
 
 def get_data(user):
     filename = user + ".md"
-    return open(filename, "r")
+    try:
+        return open(filename, "r")
+    except FileNotFoundError:
+        return False
 
 
 def post_response(channel, command):
+    mode = "chat.postMessage"
     if command:
-        mode = "files.upload"
-        message_data = {"filename": "log.md",
-                        "file": get_data(channel),
-                        "channels": channel}
+        file_content = get_data(channel)
+        if file_content:
+            mode = "files.upload"
+            message_data = {"filename": "log.md",
+                            "file": file_content,
+                            "channels": channel}
+        else:
+            response = "There was an error handling your command."
+            message_data = {"text": response,
+                            "channel": channel,
+                            "as_user": True}
     else:
         response = "I have added your message to the log with the \
 current date."
-        mode = "chat.postMessage"
         message_data = {"text": response,
                         "channel": channel,
                         "as_user": True}
