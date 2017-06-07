@@ -12,10 +12,26 @@ def save_data(user, content, date):
         w.write(date + "\n" + content + "\n\n")
 
 
-def post_response(channel):
-    response = "I have added your message to the log with the current date."
-    slack_client.api_call("chat.postMessage",
-                          channel=channel, text=response, as_user=True)
+def get_data(user):
+    filename = user + ".md"
+    return open(filename, "r")
+
+
+def post_response(channel, command):
+    message_data = {}
+    if command:
+        mode = "files.upload"
+        message_data.update({"filename": "log.md",
+                             "file": get_data(channel),
+                             "channels": channel})
+    else:
+        response = "I have added your message to the log with the \
+current date."
+        mode = "chat.postMessage"
+        message_data.update({"text": response,
+                             "channel": channel,
+                             "as_user": True})
+    slack_client.api_call(mode, **message_data)
 
 
 def split_bot_tag(message):
@@ -51,8 +67,13 @@ def main():
                 slack_client.rtm_read())
             if from_user and message and date and channel:
                 print(from_user, message, date)
-                save_data(from_user, message, date)
-                post_response(channel)
+                if message == "get":
+                    command = True
+                    channel = from_user
+                else:
+                    command = False
+                    save_data(from_user, message, date)
+                post_response(channel, command)
             time.sleep(1)
     else:
         print("Connection failed. Invalid Slack token or Slack is down!")
