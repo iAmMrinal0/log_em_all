@@ -12,6 +12,12 @@ def save_data(user, content, date):
         w.write(date + "\n" + content + "\n\n")
 
 
+def post_response(channel):
+    response = "I have added your message to the log with the current date."
+    slack_client.api_call("chat.postMessage",
+                          channel=channel, text=response, as_user=True)
+
+
 def split_bot_tag(message):
     bot_tag = "<@" + os.environ.get("BOT_ID") + ">"
     if bot_tag in message:
@@ -46,6 +52,7 @@ def main():
             if from_user and message and date and channel:
                 print(from_user, message, date)
                 save_data(from_user, message, date)
+                post_response(channel)
             time.sleep(1)
     else:
         print("Connection failed. Invalid Slack token or Slack is down!")
