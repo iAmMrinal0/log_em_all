@@ -1,41 +1,10 @@
 from slackclient import SlackClient
+import db
 import os
-import sqlite3 as sql
-import sys
 import time
 
 
 slack_client = SlackClient(os.environ.get("SLACK_BOT_TOKEN"))
-table_name = os.environ.get("SQLITE_TABLE")
-
-try:
-    con = sql.connect(os.environ.get("SQLITE_DB"))
-    c = con.cursor()
-    table_create = """
-create table if not exists {0}(
-user_id text,
-date text,
-message text
-);""".format(table_name)
-    c.execute(table_create)
-except sql.Error as e:
-    print("Error encountered:{0}".format(e.args[0]))
-    sys.exit(1)
-
-
-def save_data(user, content, date):
-    insert = """insert into {0} (user_id, date, message)
- values (?, ?, ?)""".format(table_name)
-    c.execute(insert, (user, date, content))
-    con.commit()
-
-
-def get_data(user):
-    fetch = "select date, message from {0} where user_id=(?)".format(
-        table_name)
-    c.execute(fetch, (user,))
-    result = c.fetchall()
-    return result
 
 
 def process_data(data):
@@ -60,7 +29,7 @@ def format_data(data):
 def post_response(channel, command):
     mode = "chat.postMessage"
     if command:
-        file_content = get_data(channel)
+        file_content = db.get_data(channel)
         if file_content:
             mode = "files.upload"
             message_data = {"filename": "log.md",
@@ -123,7 +92,7 @@ def main():
                     channel = from_user
                 else:
                     command = False
-                    save_data(from_user, message, date)
+                    db.save_data(from_user, message, date)
                 response = post_response(channel, command)
                 error = handle_response(response)
                 if error:
