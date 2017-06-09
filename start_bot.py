@@ -23,7 +23,7 @@ def format_data(data):
     return result.strip()
 
 
-def post_response(channel, command):
+def create_response(channel, command):
     mode = "chat.postMessage"
     if command:
         file_content = db.get_data(channel)
@@ -91,7 +91,7 @@ def main():
                 else:
                     command = False
                     db.save_data(from_user, message, date)
-                mode, kwargs = post_response(channel, command)
+                mode, kwargs = create_response(channel, command)
                 response = slack_client.api_call(mode, **kwargs)
                 error = handle_response(response)
                 if error:
