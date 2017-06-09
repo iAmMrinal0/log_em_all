@@ -4,9 +4,6 @@ import os
 import time
 
 
-slack_client = SlackClient(os.environ.get("SLACK_BOT_TOKEN"))
-
-
 def process_data(data):
     messages_dict = {}
     for val in data:
@@ -46,7 +43,7 @@ current date."
         message_data = {"text": response,
                         "channel": channel,
                         "as_user": True}
-    return slack_client.api_call(mode, **message_data)
+    return (mode, message_data)
 
 
 def handle_response(response):
@@ -80,6 +77,7 @@ def parse_data(slack_rtm_data):
 
 
 def main():
+    slack_client = SlackClient(os.environ.get("SLACK_BOT_TOKEN"))
     if slack_client.rtm_connect():
         print("report_tracker connected and running")
         while True:
@@ -93,7 +91,8 @@ def main():
                 else:
                     command = False
                     db.save_data(from_user, message, date)
-                response = post_response(channel, command)
+                mode, kwargs = post_response(channel, command)
+                response = slack_client.api_call(mode, **kwargs)
                 error = handle_response(response)
                 if error:
                     print(error)
