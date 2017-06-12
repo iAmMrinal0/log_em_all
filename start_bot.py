@@ -77,7 +77,7 @@ def main():
             from_user, message, date, channel = parse_data(
                 slack_client.rtm_read())
             if all([from_user, message, date, channel]):
-                if message == "get":
+                if message.lower() == "get":
                     channel = from_user
                     mode, kwargs = create_response(channel)
                     response = slack_client.api_call(mode, **kwargs)
