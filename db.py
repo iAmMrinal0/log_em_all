@@ -10,8 +10,9 @@ try:
     c = con.cursor()
     table_create = """
 create table if not exists {0}(
+channel text,
 user_id text,
-date text,
+timestamp text,
 message text
 );""".format(table_name)
     c.execute(table_create)
@@ -20,16 +21,16 @@ except sql.Error as e:
     sys.exit(1)
 
 
-def save_data(user, content, date):
-    insert = """insert into {0} (user_id, date, message)
- values (?, ?, ?)""".format(table_name)
-    c.execute(insert, (user, date, content))
+def save_data(channel, user, content, date):
+    insert = """insert into {0} (channel, user_id, timestamp, message)
+ values (?, ?, ?, ?)""".format(table_name)
+    c.execute(insert, (channel, user, date, content))
     con.commit()
 
 
-def get_data(user):
-    fetch = "select date, message from {0} where user_id=(?)".format(
-        table_name)
-    c.execute(fetch, (user,))
+def get_data(channel, user):
+    fetch = "select timestamp, message from {0} where channel=(?)\
+ and user_id=(?)".format(table_name)
+    c.execute(fetch, (channel, user,))
     result = c.fetchall()
     return result
