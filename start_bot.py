@@ -23,23 +23,16 @@ def format_data(data):
     return result.strip()
 
 
-def create_response(channel, command):
+def create_response(channel):
     mode = "chat.postMessage"
-    if command:
-        file_content = db.get_data(channel)
-        if file_content:
-            mode = "files.upload"
-            message_data = {"filename": "log.md",
-                            "file": format_data(process_data(file_content)),
-                            "channels": channel}
-        else:
-            response = "There was an error handling your command."
-            message_data = {"text": response,
-                            "channel": channel,
-                            "as_user": True}
+    file_content = db.get_data(channel)
+    if file_content:
+        mode = "files.upload"
+        message_data = {"filename": "log.md",
+                        "file": format_data(process_data(file_content)),
+                        "channels": channel}
     else:
-        response = "I have added your message to the log with the \
-current date."
+        response = "There was an error handling your command."
         message_data = {"text": response,
                         "channel": channel,
                         "as_user": True}
@@ -84,18 +77,15 @@ def main():
             from_user, message, date, channel = parse_data(
                 slack_client.rtm_read())
             if all([from_user, message, date, channel]):
-                print(from_user, message, date)
                 if message == "get":
-                    command = True
                     channel = from_user
+                    mode, kwargs = create_response(channel)
+                    response = slack_client.api_call(mode, **kwargs)
+                    error = handle_response(response)
+                    if error:
+                        print(error)
                 else:
-                    command = False
                     db.save_data(from_user, message, date)
-                mode, kwargs = create_response(channel, command)
-                response = slack_client.api_call(mode, **kwargs)
-                error = handle_response(response)
-                if error:
-                    print(error)
             time.sleep(1)
     else:
         print("Connection failed. Invalid Slack token or Slack is down!")
