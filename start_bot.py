@@ -7,9 +7,10 @@ import time
 def process_data(data):
     messages_dict = {}
     for val in data:
-        adder = messages_dict.get(val[0], [])
+        date = time.strftime("%d-%m-%Y", time.localtime(float(val[0])))
+        adder = messages_dict.get(date, [])
         adder.append(val[1])
-        messages_dict[val[0]] = adder
+        messages_dict[date] = adder
     return messages_dict
 
 
@@ -63,8 +64,7 @@ def parse_data(slack_rtm_data):
                     and is_dm(messages_obj["channel"])):
                 msg_content = messages_obj["text"]
                 from_user = messages_obj["user"]
-                date = time.strftime("%d-%m-%Y",
-                                     time.localtime(float(messages_obj["ts"])))
+                date = messages_obj["ts"]
                 channel = messages_obj["channel"]
     return from_user, msg_content, date, channel
 
