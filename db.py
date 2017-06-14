@@ -23,8 +23,8 @@ except sql.Error as e:
 
 
 def save_data(channel, user, content, date):
-    logging.debug("channel:{0} user:{1} timestamp:{2} content:{3}",
-                  channel, user, date, content)
+    logging.debug("channel:{0} user:{1} timestamp:{2} content:{3}".format(
+        channel, user, date, content))
     insert = """insert into {0} (channel, user_id, timestamp, message)
  values (?, ?, ?, ?)""".format(table_name)
     c.execute(insert, (channel, user, date, content))
