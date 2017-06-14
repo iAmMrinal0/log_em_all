@@ -26,11 +26,3 @@ def save_data(channel, user, content, date):
  values (?, ?, ?, ?)""".format(table_name)
     c.execute(insert, (channel, user, date, content))
     con.commit()
-
-
-def get_data(channel, user):
-    fetch = "select timestamp, message from {0} where channel=(?)\
- and user_id=(?)".format(table_name)
-    c.execute(fetch, (channel, user,))
-    result = c.fetchall()
-    return result
